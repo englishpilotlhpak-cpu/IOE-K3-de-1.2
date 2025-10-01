@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Thi Thử IOE Lớp 3 (ĐỀ SỐ 01.2)</title>
+    <title>Bài Thi Thử IOE Lớp 3 (ĐỀ SỐ 01)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -32,18 +31,681 @@
             justify-content: center;
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/"
-  }
-}
-</script>
 </head>
 <body class="bg-gray-50 font-sans antialiased text-gray-800">
     <div id="root"></div>
-    <script type="module" src="/index.js"></script>
+
+    <script type="text/babel">
+        // --- DỮ LIỆU CÂU HỎI (constants.ts) ---
+        const QUESTIONS = [
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Is', 'that', 'Viet?'], correctAnswer: 'Is that Viet?', correctAnswer_vi: 'Đó có phải là Việt không?', hint_vi: 'Đây là câu hỏi Yes/No, bắt đầu bằng "Is".', rationale_vi: 'Cấu trúc câu hỏi Yes/No với "that": Is that + Tên?', rationale_en: 'Yes/No question structure with "that": Is that + Name?' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['My', 'teacher', 'is', 'very', 'tall.'], correctAnswer: 'My teacher is very tall.', correctAnswer_vi: 'Cô giáo/thầy giáo của tôi rất cao.', hint_vi: 'Chủ ngữ là "My teacher".', rationale_vi: 'Cấu trúc câu: Chủ ngữ + to be + trạng từ + tính từ.', rationale_en: 'Sentence structure: Subject + to be + adverb + adjective.' },
+            { type: 'multimedia', question: 'Listen and tick:', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2013/11/21/635206381431951637_Audio.mp3', audioContent: 'This is my school bag.', options: [ { text: 'A. This is my school bag.', isCorrect: true }, { text: 'B. This is my school bus.', isCorrect: false }, { text: 'C. This is my school car.', isCorrect: false }, { text: 'D. This is my school book.', isCorrect: false } ], correctAnswer: 'A. This is my school bag.', correctAnswer_vi: 'Đây là cặp sách của tôi.', hint_vi: 'Lắng nghe kỹ danh từ cuối câu (bag/bus/car/book).', rationale_vi: 'Đoạn audio đọc câu "This is my school bag".', rationale_en: 'The audio says "This is my school bag".' },
+            { type: 'fill-in-the-blank', question: 'May I come _n? – Yes, please.', correctAnswer: 'i', correctAnswer_vi: 'i (để hoàn thành "in")', hint_vi: 'Cụm từ "come in" có nghĩa là "đi vào". (1 ký tự)', rationale_vi: 'Cụm động từ cố định là "come in" (đi vào).', rationale_en: 'The fixed phrasal verb is "come in".' },
+            { type: 'fill-in-the-blank', question: 'This is my sister. ___ name is Alice.', correctAnswer: 'Her', correctAnswer_vi: 'Her (của cô ấy)', hint_vi: 'Tính từ sở hữu cho "sister" (nữ giới). (3 ký tự)', rationale_vi: 'Tính từ sở hữu cho chủ ngữ nữ giới (sister) là "Her".', rationale_en: 'The possessive adjective for a female subject (sister) is "Her".' },
+            { type: 'mc', question: 'These are ....', options: [ { text: 'A. cat', isCorrect: false }, { text: 'B. cats', isCorrect: true }, { text: 'C. cat’s', isCorrect: false }, { text: 'D. a cat', isCorrect: false } ], correctAnswer: 'B. cats', correctAnswer_vi: 'những con mèo', hint_vi: 'Từ "These are" đi với danh từ số nhiều.', rationale_vi: '"These are" dùng để chỉ các vật ở gần và ở dạng số nhiều, do đó danh từ theo sau phải là số nhiều ("cats").', rationale_en: '"These are" is used for plural nouns, so the correct form is "cats".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Look', 'at', 'the', 'picture.'], correctAnswer: 'Look at the picture.', correctAnswer_vi: 'Nhìn vào bức tranh.', hint_vi: 'Đây là câu mệnh lệnh, bắt đầu bằng động từ "Look".', rationale_vi: 'Cấu trúc câu mệnh lệnh: Động từ + (cụm) danh từ.', rationale_en: 'Imperative structure: Verb + noun phrase.' },
+            { type: 'mc', question: 'This rose ... for you. - Thank you very much.', options: [ { text: 'A. are', isCorrect: false }, { text: 'B. and', isCorrect: false }, { text: 'C. is', isCorrect: true }, { text: 'D. this', isCorrect: false } ], correctAnswer: 'C. is', correctAnswer_vi: 'là', hint_vi: 'Chủ ngữ "This rose" là số ít.', rationale_vi: 'Chủ ngữ số ít ("This rose") đi với động từ to be là "is".', rationale_en: 'The singular subject "This rose" takes the verb "is".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['This', 'is', 'my', 'classroom.'], correctAnswer: 'This is my classroom.', correctAnswer_vi: 'Đây là phòng học của tôi.', hint_vi: 'Câu giới thiệu bắt đầu bằng "This is".', rationale_vi: 'Cấu trúc câu giới thiệu: This is + tính từ sở hữu + danh từ.', rationale_en: 'Introductory sentence structure: This is + possessive adjective + noun.' },
+            { type: 'multimedia', question: 'F__r brothers and 4 sisters.', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/Thi_cac_cap/2020-2021/Lop3/Captruong/Audio/1-dt-37.mp3', audioContent: 'Four', correctAnswer: 'ou', correctAnswer_vi: 'ou (để hoàn thành "Four")', hint_vi: 'Nghe và điền vào chỗ trống để tạo thành số 4. (2 ký tự)', rationale_vi: 'Đoạn audio đọc số "Four" (bốn).', rationale_en: 'The audio says the number "Four".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['I', 'go to', 'school', 'every', 'morning.'], correctAnswer: 'I go to school every morning.', correctAnswer_vi: 'Tôi đi học mỗi buổi sáng.', hint_vi: 'Trạng ngữ chỉ thời gian "every morning" thường đứng cuối câu.', rationale_vi: 'Cấu trúc: Chủ ngữ + động từ + nơi chốn + trạng ngữ thời gian.', rationale_en: 'Structure: Subject + verb + place + time adverbial.' },
+            { type: 'fill-in-the-blank', question: 'A parrot can f__.', correctAnswer: 'ly', correctAnswer_vi: 'ly (để hoàn thành "fly")', hint_vi: 'Động từ có nghĩa là "bay". (2 ký tự)', rationale_vi: 'Một con vẹt có thể bay (fly).', rationale_en: 'A parrot can fly.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Peter', 'wants', 'some', 'food.'], correctAnswer: 'Peter wants some food.', correctAnswer_vi: 'Peter muốn một ít thức ăn.', hint_vi: 'Động từ "wants" chia ở ngôi thứ ba số ít.', rationale_vi: 'Cấu trúc câu: Chủ ngữ + động từ (chia) + tân ngữ.', rationale_en: 'Sentence structure: Subject + verb (conjugated) + object.' },
+            { type: 'multimedia', question: 'A LARG_ ROOM', mediaType: 'image', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/Thi_cac_cap/2020-2021/Lop3/Captruong/Images/1-dt-58.jpg', imagePrompt: 'A large room', correctAnswer: 'E', correctAnswer_vi: 'E (để hoàn thành "LARGE")', hint_vi: 'Chữ cái còn thiếu để tạo thành từ có nghĩa là "rộng lớn". (1 ký tự)', rationale_vi: 'Hình ảnh mô tả một căn phòng lớn (LARGE room).', rationale_en: 'The image depicts a LARGE room.' },
+            { type: 'mc', question: '___ is my sister, Hoa.', options: [ { text: 'A. Her', isCorrect: false }, { text: 'B. He', isCorrect: false }, { text: 'C. She', isCorrect: true }, { text: 'D. His', isCorrect: false } ], correctAnswer: 'C. She', correctAnswer_vi: 'Cô ấy', hint_vi: '"sister" là nữ giới, cần một đại từ nhân xưng phù hợp.', rationale_vi: 'Đại từ nhân xưng chỉ nữ giới là "She".', rationale_en: 'The personal pronoun for a female is "She".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['What', 'subjects', 'does', 'he', 'have?'], correctAnswer: 'What subjects does he have?', correctAnswer_vi: 'Anh ấy có những môn học nào?', hint_vi: 'Câu hỏi Wh-question ở thì hiện tại đơn.', rationale_vi: 'Cấu trúc câu hỏi: What + danh từ + do/does + chủ ngữ + have?', rationale_en: 'Question structure: What + noun + do/does + subject + have?' },
+            { type: 'mc', question: '... you like a candy? – No, thanks.', options: [ { text: 'A. Who', isCorrect: false }, { text: 'B. When', isCorrect: false }, { text: 'C. Would', isCorrect: true }, { text: 'D. How', isCorrect: false } ], correctAnswer: 'C. Would', correctAnswer_vi: 'Would', hint_vi: 'Đây là một lời mời lịch sự.', rationale_vi: 'Cấu trúc lời mời lịch sự là "Would you like...?".', rationale_en: 'The polite offer structure is "Would you like...?".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Sit down', 'and', 'open', 'your book,', 'please!'], correctAnswer: 'Sit down and open your book, please!', correctAnswer_vi: 'Ngồi xuống và mở sách ra, làm ơn!', hint_vi: 'Đây là chuỗi hai câu mệnh lệnh.', rationale_vi: 'Hai hành động mệnh lệnh "Sit down" và "open your book" được nối với nhau bằng "and".', rationale_en: 'Two imperative actions "Sit down" and "open your book" are connected by "and".' },
+            { type: 'multimedia', question: 'Is the school gym _______?', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/Thi_cac_cap/2020-2021/Lop3/Captruong/Audio/1-tn-46.mp3', audioContent: 'Is the school gym large?', options: [ { text: 'A. large', isCorrect: true }, { text: 'B. big', isCorrect: false }, { text: 'C. lag', isCorrect: false }, { text: 'D. larg', isCorrect: false } ], correctAnswer: 'A. large', correctAnswer_vi: 'rộng lớn', hint_vi: 'Lắng nghe tính từ mô tả phòng thể dục.', rationale_vi: 'Đoạn audio đọc câu hỏi "Is the school gym large?".', rationale_en: 'The audio asks the question "Is the school gym large?".' },
+            { type: 'multimedia', question: 'That is my _______.', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2013/11/21/635206392267418668_Audio.mp3', audioContent: 'brother', correctAnswer: 'brother', correctAnswer_vi: 'anh/em trai', hint_vi: 'Nghe tên một thành viên trong gia đình. (7 ký tự)', rationale_vi: 'Đoạn audio đọc từ "brother".', rationale_en: 'The audio says the word "brother".' },
+            { type: 'multimedia', question: 'This is a _____.', mediaType: 'image', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2019/11/29/637106205004943331_566X320.jpg', imagePrompt: 'A ball.', options: [ { text: 'A. ball', isCorrect: true }, { text: 'B. hat', isCorrect: false }, { text: 'C. book', isCorrect: false }, { text: 'D. table', isCorrect: false } ], correctAnswer: 'A. ball', correctAnswer_vi: 'quả bóng', hint_vi: 'Nhận diện đồ vật trong hình.', rationale_vi: 'Hình ảnh cho thấy một quả bóng (ball).', rationale_en: 'The image shows a ball.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Peter', 'and Linda', 'are', 'eight', 'years old.'], correctAnswer: 'Peter and Linda are eight years old.', correctAnswer_vi: 'Peter và Linda tám tuổi.', hint_vi: 'Chủ ngữ gồm hai người, nên động từ to be là "are".', rationale_vi: 'Cấu trúc câu nói tuổi cho nhiều người: Tên 1 and Tên 2 + are + số tuổi + years old.', rationale_en: 'Age sentence structure for multiple people: Name 1 and Name 2 + are + number + years old.' },
+            { type: 'mc', question: 'The bag is p...nk.', options: [ { text: 'A. u', isCorrect: false }, { text: 'B. i', isCorrect: true }, { text: 'C. e', isCorrect: false }, { text: 'D. o', isCorrect: false } ], correctAnswer: 'B. i', correctAnswer_vi: 'i (để hoàn thành "pink")', hint_vi: 'Chữ cái còn thiếu để tạo thành từ chỉ màu hồng.', rationale_vi: 'Từ đúng là "pink" (màu hồng).', rationale_en: 'The correct word is "pink".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Look', 'at', 'that', 'blue', 'picture.'], correctAnswer: 'Look at that blue picture.', correctAnswer_vi: 'Nhìn vào bức tranh màu xanh dương kia.', hint_vi: 'Tính từ "blue" đứng trước danh từ "picture".', rationale_vi: 'Cấu trúc mệnh lệnh: Look at + that + tính từ + danh từ.', rationale_en: 'Imperative structure: Look at + that + adjective + noun.' },
+            { type: 'fill-in-the-blank', question: 'No, it is n__.', correctAnswer: 'ot', correctAnswer_vi: 'ot (để hoàn thành "not")', hint_vi: 'Từ phủ định trong câu trả lời. (2 ký tự)', rationale_vi: 'Câu trả lời phủ định đầy đủ là "No, it is not".', rationale_en: 'The full negative answer is "No, it is not".' },
+            { type: 'fill-in-the-blank', question: 'How are y__?', correctAnswer: 'ou', correctAnswer_vi: 'ou (để hoàn thành "you")', hint_vi: 'Câu hỏi thăm sức khỏe. (2 ký tự)', rationale_vi: 'Câu hỏi thăm sức khỏe thông dụng là "How are you?".', rationale_en: 'The common greeting is "How are you?".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['There', 'are', 'two', 'pencil boxes.'], correctAnswer: 'There are two pencil boxes.', correctAnswer_vi: 'Có hai hộp bút chì.', hint_vi: 'Cấu trúc "There are" dùng cho danh từ số nhiều.', rationale_vi: 'Cấu trúc: There are + số lượng + danh từ (số nhiều).', rationale_en: 'Structure: There are + number + plural noun.' },
+            { type: 'mc', question: 'This isn’t ... ruler. It’s my ruler.', options: [ { text: 'A. he’s', isCorrect: false }, { text: 'B. his', isCorrect: true }, { text: 'C. me’s', isCorrect: false }, { text: 'D. you’s', isCorrect: false } ], correctAnswer: 'B. his', correctAnswer_vi: 'của anh ấy', hint_vi: 'Cần một tính từ sở hữu.', rationale_vi: 'Tính từ sở hữu "his" được dùng để chỉ vật gì đó thuộc về một người nam.', rationale_en: 'The possessive adjective "his" is used to show that something belongs to a male person.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['I', 'am', 'thirsty', 'now.'], correctAnswer: 'I am thirsty now.', correctAnswer_vi: 'Bây giờ tôi khát nước.', hint_vi: 'Câu trần thuật đơn giản.', rationale_vi: 'Cấu trúc: Chủ ngữ + to be + tính từ + trạng từ thời gian.', rationale_en: 'Structure: Subject + to be + adjective + time adverb.' },
+            { type: 'fill-in-the-blank', question: 'Let’s make a ci_cle.', correctAnswer: 'r', correctAnswer_vi: 'r (để hoàn thành "circle")', hint_vi: 'Từ có nghĩa là "vòng tròn". (1 ký tự)', rationale_vi: 'Từ cần điền là "circle" (vòng tròn).', rationale_en: 'The word is "circle".' },
+            { type: 'fill-in-the-blank', question: 'What are ___se? – These are pink dolls.', correctAnswer: 'the', correctAnswer_vi: 'the (để hoàn thành "these")', hint_vi: 'Từ chỉ định dùng cho vật ở gần, số nhiều. (3 ký tự)', rationale_vi: 'Câu trả lời dùng "These are", nên câu hỏi phải là "What are these?".', rationale_en: 'The answer uses "These are", so the question must be "What are these?".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['How', 'old', 'is', 'your teacher?'], correctAnswer: 'How old is your teacher?', correctAnswer_vi: 'Thầy/cô giáo của bạn bao nhiêu tuổi?', hint_vi: 'Câu hỏi về tuổi bắt đầu bằng "How old".', rationale_vi: 'Cấu trúc hỏi tuổi: How old + is/are + chủ ngữ?', rationale_en: 'Age question structure: How old + is/are + subject?' },
+            { type: 'fill-in-the-blank', question: 'Is this a book? - __, it isn’t.', correctAnswer: 'No', correctAnswer_vi: 'No (Không)', hint_vi: 'Vế sau là phủ định "it isn\'t". (2 ký tự)', rationale_vi: 'Câu trả lời phủ định phải bắt đầu bằng "No".', rationale_en: 'A negative answer must start with "No".' },
+            { type: 'fill-in-the-blank', question: 'Be qu_et, please.', correctAnswer: 'i', correctAnswer_vi: 'i (để hoàn thành "quiet")', hint_vi: 'Từ có nghĩa là "yên lặng". (1 ký tự)', rationale_vi: 'Từ cần điền là "quiet" (yên lặng).', rationale_en: 'The word is "quiet".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['The school library', 'is', 'new', 'and', 'nice.'], correctAnswer: 'The school library is new and nice.', correctAnswer_vi: 'Thư viện trường mới và đẹp.', hint_vi: '"new" và "nice" là hai tính từ mô tả thư viện.', rationale_vi: 'Cấu trúc: Chủ ngữ + to be + tính từ 1 + and + tính từ 2.', rationale_en: 'Structure: Subject + to be + adjective 1 + and + adjective 2.' },
+            { type: 'mc', question: 'Choose the odd one out:', options: [ { text: 'A. cat', isCorrect: false }, { text: 'B. dog', isCorrect: false }, { text: 'C. pencil', isCorrect: true }, { text: 'D. parrot', isCorrect: false } ], correctAnswer: 'C. pencil', correctAnswer_vi: 'bút chì', hint_vi: 'Ba từ là con vật, một từ là đồ vật.', rationale_vi: 'Cat, dog, parrot là các con vật. Pencil là đồ dùng học tập.', rationale_en: 'Cat, dog, parrot are animals. Pencil is a school supply.' },
+            { type: 'fill-in-the-blank', question: 'How ___ you?', correctAnswer: 'are', correctAnswer_vi: 'are', hint_vi: 'Câu hỏi thăm sức khỏe. (3 ký tự)', rationale_vi: 'Câu hỏi "How are you?".', rationale_en: 'The question is "How are you?".' },
+            { type: 'multimedia', question: '__', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2019/11/29/637106247098382143_Audio.mp3', audioContent: 'It', correctAnswer: 'It', correctAnswer_vi: 'Nó', hint_vi: 'Nghe và điền từ còn thiếu. (2 ký tự)', rationale_vi: 'Đoạn audio đọc từ "It".', rationale_en: 'The audio says the word "It".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['There', 'are', 'many toys', 'in', 'that box.'], correctAnswer: 'There are many toys in that box.', correctAnswer_vi: 'Có nhiều đồ chơi trong chiếc hộp đó.', hint_vi: 'Bắt đầu bằng "There are".', rationale_vi: 'Cấu trúc: There are + danh từ + cụm giới từ chỉ nơi chốn.', rationale_en: 'Structure: There are + noun + prepositional phrase of place.' },
+            { type: 'mc', question: 'Good morning, te...cher.', options: [ { text: 'A. u', isCorrect: false }, { text: 'B. a', isCorrect: true }, { text: 'C. e', isCorrect: false }, { text: 'D. o', isCorrect: false } ], correctAnswer: 'B. a', correctAnswer_vi: 'a (để hoàn thành "teacher")', hint_vi: 'Chữ cái còn thiếu trong từ "giáo viên".', rationale_vi: 'Từ đúng là "teacher".', rationale_en: 'The correct word is "teacher".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['It', 'is', 'a', 'big', 'box.'], correctAnswer: 'It is a big box.', correctAnswer_vi: 'Nó là một cái hộp lớn.', hint_vi: 'Tính từ "big" đứng trước danh từ "box".', rationale_vi: 'Cấu trúc: It is + a + tính từ + danh từ.', rationale_en: 'Structure: It is + a + adjective + noun.' },
+            { type: 'fill-in-the-blank', question: 'Stand in line, pl_____.', correctAnswer: 'ease', correctAnswer_vi: 'ease (để hoàn thành "please")', hint_vi: 'Từ có nghĩa là "làm ơn". (4 ký tự)', rationale_vi: 'Từ cần điền là "please" (làm ơn).', rationale_en: 'The word is "please".' },
+            { type: 'mc', question: 'What is ... name? – My name is Simon.', options: [ { text: 'A. I', isCorrect: false }, { text: 'B. he', isCorrect: false }, { text: 'C. my', isCorrect: false }, { text: 'D. your', isCorrect: true } ], correctAnswer: 'D. your', correctAnswer_vi: 'của bạn', hint_vi: 'Câu trả lời là "My name is...".', rationale_vi: 'Để trả lời là "My name..." (tên của tôi), câu hỏi phải là "What is your name?" (tên của bạn là gì?).', rationale_en: 'The answer "My name..." responds to the question "What is your name?".' },
+            { type: 'fill-in-the-blank', question: 'She is __ new friend.', correctAnswer: 'a', correctAnswer_vi: 'a', hint_vi: 'Mạo từ không xác định. (1 ký tự)', rationale_vi: 'Dùng mạo từ "a" trước "new friend".', rationale_en: 'Use the article "a" before "new friend".' },
+            { type: 'fill-in-the-blank', question: 'Put your book a__y.', correctAnswer: 'wa', correctAnswer_vi: 'wa (để hoàn thành "away")', hint_vi: 'Cụm động từ có nghĩa là "cất đi". (2 ký tự)', rationale_vi: 'Cụm động từ "put away" (cất đi).', rationale_en: 'The phrasal verb is "put away".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['The pencil sharpener', 'is in', 'my pencil case.'], correctAnswer: 'The pencil sharpener is in my pencil case.', correctAnswer_vi: 'Cái gọt bút chì ở trong hộp bút của tôi.', hint_vi: 'Chủ ngữ là "The pencil sharpener".', rationale_vi: 'Cấu trúc: Chủ ngữ + to be + cụm giới từ chỉ nơi chốn.', rationale_en: 'Structure: Subject + to be + prepositional phrase of place.' },
+            { type: 'mc', question: 'Bob: What is this? - Peter: ...', options: [ { text: 'A. His name is Hien.', isCorrect: false }, { text: 'B. It is a ruler.', isCorrect: true }, { text: 'C. It’s an ruler.', isCorrect: false }, { text: 'D. It is my friend.', isCorrect: false } ], correctAnswer: 'B. It is a ruler.', correctAnswer_vi: 'Nó là một cái thước.', hint_vi: 'Câu hỏi "What is this?" dùng để hỏi về đồ vật.', rationale_vi: 'Câu hỏi về đồ vật ("What is this?") cần câu trả lời về đồ vật. "It is a ruler" là câu trả lời đúng ngữ pháp và ngữ cảnh.', rationale_en: 'The question "What is this?" asks about an object. "It is a ruler" is the grammatically correct and contextually appropriate answer.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['My favourite', 'colour', 'is blue.'], correctAnswer: 'My favourite colour is blue.', correctAnswer_vi: 'Màu yêu thích của tôi là màu xanh dương.', hint_vi: 'Chủ ngữ là "My favourite colour".', rationale_vi: 'Cấu trúc: Chủ ngữ + to be + bổ ngữ.', rationale_en: 'Structure: Subject + to be + complement.' },
+            { type: 'fill-in-the-blank', question: 'A fish can s__m but it can’t run.', correctAnswer: 'wi', correctAnswer_vi: 'wi (để hoàn thành "swim")', hint_vi: 'Động từ có nghĩa là "bơi". (2 ký tự)', rationale_vi: 'Một con cá có thể bơi (swim).', rationale_en: 'A fish can swim.' },
+            { type: 'mc', question: 'Is this a bag? - ... .', options: [ { text: 'A. Yes, it is', isCorrect: true }, { text: 'B. Yes, isn’t', isCorrect: false }, { text: 'C. No, it is', isCorrect: false }, { text: 'D. Nice to meet you.', isCorrect: false } ], correctAnswer: 'A. Yes, it is', correctAnswer_vi: 'Vâng, đúng vậy.', hint_vi: 'Câu trả lời khẳng định cho câu hỏi Yes/No.', rationale_vi: 'Câu trả lời khẳng định đúng ngữ pháp cho "Is this...?" là "Yes, it is".', rationale_en: 'The correct affirmative answer to "Is this...?" is "Yes, it is".' },
+            { type: 'multimedia', question: 'SCHOOL TH_NGS', mediaType: 'image', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/Thi_cac_cap/2020-2021/Lop3/Captruong/Images/1-dt-61.jpg', imagePrompt: 'School supplies.', correctAnswer: 'I', correctAnswer_vi: 'I (để hoàn thành "THINGS")', hint_vi: 'Chữ cái còn thiếu để tạo thành từ có nghĩa là "đồ vật". (1 ký tự)', rationale_vi: 'Từ cần hoàn thành là "THINGS" trong cụm "SCHOOL THINGS" (đồ dùng học tập).', rationale_en: 'The word to complete is "THINGS" in the phrase "SCHOOL THINGS".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['These', 'kites', 'are', 'beautiful.'], correctAnswer: 'These kites are beautiful.', correctAnswer_vi: 'Những con diều này đẹp.', hint_vi: 'Chủ ngữ số nhiều "These kites".', rationale_vi: 'Cấu trúc: Chủ ngữ (số nhiều) + are + tính từ.', rationale_en: 'Structure: Subject (plural) + are + adjective.' },
+            { type: 'fill-in-the-blank', question: 'Look __ that map on the wall, please.', correctAnswer: 'at', correctAnswer_vi: 'at (vào)', hint_vi: 'Giới từ đi với "Look". (2 ký tự)', rationale_vi: 'Cụm động từ "look at" có nghĩa là "nhìn vào".', rationale_en: 'The phrasal verb "look at" means to direct your eyes at something.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['May I', 'close', 'your', 'pencil', 'box?'], correctAnswer: 'May I close your pencil box?', correctAnswer_vi: 'Tôi có thể đóng hộp bút của bạn không?', hint_vi: 'Câu xin phép bắt đầu bằng "May I".', rationale_vi: 'Cấu trúc câu xin phép: May I + động từ + tân ngữ?', rationale_en: 'Permission question structure: May I + verb + object?' },
+            { type: 'multimedia', question: '____', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2018/11/30/636791919683871551_Audio.mp3', audioContent: 'desk', correctAnswer: 'desk', correctAnswer_vi: 'cái bàn', hint_vi: 'Nghe tên một đồ vật trong lớp học. (4 ký tự)', rationale_vi: 'Đoạn audio đọc từ "desk".', rationale_en: 'The audio says the word "desk".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['These', 'are', 'my sister\'s', 'pink', 'dolls.'], correctAnswer: 'These are my sister\'s pink dolls.', correctAnswer_vi: 'Đây là những con búp bê màu hồng của chị gái tôi.', hint_vi: 'Trật tự tính từ: màu sắc (pink) đứng trước danh từ (dolls).', rationale_vi: 'Cấu trúc: These are + sở hữu + tính từ + danh từ.', rationale_en: 'Structure: These are + possessive + adjective + noun.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['These', 'are', 'my', 'relatives.'], correctAnswer: 'These are my relatives.', correctAnswer_vi: 'Đây là những người họ hàng của tôi.', hint_vi: 'Câu giới thiệu người thân.', rationale_vi: 'Cấu trúc: These are + tính từ sở hữu + danh từ (số nhiều).', rationale_en: 'Structure: These are + possessive adjective + plural noun.' },
+            { type: 'mc', question: 'GR_EN', options: [ { text: 'A. I', isCorrect: false }, { text: 'B. O', isCorrect: false }, { text: 'C. E', isCorrect: true }, { text: 'D. A', isCorrect: false } ], correctAnswer: 'C. E', correctAnswer_vi: 'E (để hoàn thành "GREEN")', hint_vi: 'Chữ cái còn thiếu để tạo thành từ chỉ màu xanh lá.', rationale_vi: 'Từ đúng là "GREEN" (màu xanh lá).', rationale_en: 'The correct word is "GREEN".' },
+            { type: 'multimedia', question: 'They are __own.', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/Thi_cac_cap/2020-2021/Lop3/Captruong/Audio/3-dt-63.mp3', audioContent: 'brown', correctAnswer: 'br', correctAnswer_vi: 'br (để hoàn thành "brown")', hint_vi: 'Nghe và điền từ chỉ màu sắc. (2 ký tự)', rationale_vi: 'Đoạn audio đọc từ "brown" (màu nâu).', rationale_en: 'The audio says the word "brown".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['How do', 'you spell', 'your', 'name, Nam?'], correctAnswer: 'How do you spell your name, Nam?', correctAnswer_vi: 'Bạn đánh vần tên của bạn như thế nào, Nam?', hint_vi: 'Câu hỏi về cách đánh vần.', rationale_vi: 'Cấu trúc câu hỏi đánh vần: How do you spell + ...?', rationale_en: 'Spelling question structure: How do you spell + ...?' },
+            { type: 'mc', question: 'He can play football … he can’t play chess.', options: [ { text: 'A. and', isCorrect: false }, { text: 'B. but', isCorrect: true }, { text: 'C. so', isCorrect: false }, { text: 'D. or', isCorrect: false } ], correctAnswer: 'B. but', correctAnswer_vi: 'nhưng', hint_vi: 'Hai vế câu có ý nghĩa trái ngược nhau.', rationale_vi: 'Liên từ "but" (nhưng) được dùng để nối hai mệnh đề có ý nghĩa tương phản.', rationale_en: 'The conjunction "but" is used to connect two contrasting clauses.' },
+            { type: 'mc', question: '… brother is very tall.', options: [ { text: 'A. My', isCorrect: true }, { text: 'B. I', isCorrect: false }, { text: 'C. Me', isCorrect: false }, { text: 'D. Mine', isCorrect: false } ], correctAnswer: 'A. My', correctAnswer_vi: 'Của tôi', hint_vi: 'Cần một tính từ sở hữu đứng trước danh từ "brother".', rationale_vi: 'Tính từ sở hữu "My" đứng trước danh từ để chỉ sự sở hữu.', rationale_en: 'The possessive adjective "My" precedes a noun to show possession.' },
+            { type: 'mc', question: 'My favourite colour is ____.', options: [ { text: 'A. oranges', isCorrect: false }, { text: 'B. red', isCorrect: true }, { text: 'C. apple', isCorrect: false }, { text: 'D. back', isCorrect: false } ], correctAnswer: 'B. red', correctAnswer_vi: 'màu đỏ', hint_vi: 'Chọn một từ chỉ màu sắc.', rationale_vi: 'Chỉ có "red" là từ chỉ màu sắc trong các lựa chọn.', rationale_en: 'Only "red" is a color among the options.' },
+            { type: 'fill-in-the-blank', question: 'What is your f_______e food?', correctAnswer: 'avourit', correctAnswer_vi: 'avourit (để hoàn thành "favourite")', hint_vi: 'Từ có nghĩa là "yêu thích". (7 ký tự)', rationale_vi: 'Từ cần điền là "favourite" (yêu thích).', rationale_en: 'The word is "favourite".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Close', 'your book,', 'please!'], correctAnswer: 'Close your book, please!', correctAnswer_vi: 'Gấp sách lại, làm ơn!', hint_vi: 'Câu mệnh lệnh lịch sự.', rationale_vi: 'Cấu trúc mệnh lệnh lịch sự: Động từ + tân ngữ + please!', rationale_en: 'Polite imperative structure: Verb + object + please!' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Her', 'new', 'school', 'is', 'small.'], correctAnswer: 'Her new school is small.', correctAnswer_vi: 'Trường mới của cô ấy nhỏ.', hint_vi: 'Chủ ngữ là "Her new school".', rationale_vi: 'Cấu trúc: Chủ ngữ + to be + tính từ.', rationale_en: 'Structure: Subject + to be + adjective.' },
+            { type: 'fill-in-the-blank', question: 'Be q__et, please.', correctAnswer: 'ui', correctAnswer_vi: 'ui (để hoàn thành "quiet")', hint_vi: 'Từ có nghĩa là "yên lặng". (2 ký tự)', rationale_vi: 'Từ cần điền là "quiet".', rationale_en: 'The word is "quiet".' },
+            { type: 'mc', question: 'I ... Simon. Nice to meet you.', options: [ { text: 'A. am', isCorrect: true }, { text: 'B. you', isCorrect: false }, { text: 'C. she', isCorrect: false }, { text: 'D. he', isCorrect: false } ], correctAnswer: 'A. am', correctAnswer_vi: 'am', hint_vi: 'Động từ to be đi với chủ ngữ "I".', rationale_vi: 'Chủ ngữ "I" đi với động từ to be là "am".', rationale_en: 'The subject "I" takes the verb "am".' },
+            { type: 'fill-in-the-blank', question: 'L__k, listen and repeat.', correctAnswer: 'oo', correctAnswer_vi: 'oo (để hoàn thành "Look")', hint_vi: 'Động từ có nghĩa là "nhìn". (2 ký tự)', rationale_vi: 'Từ "Look" (nhìn) là một trong ba hành động được yêu cầu.', rationale_en: 'The word "Look" is one of the three requested actions.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Is', 'that', 'his', 'teacher?'], correctAnswer: 'Is that his teacher?', correctAnswer_vi: 'Đó có phải là giáo viên của anh ấy không?', hint_vi: 'Câu hỏi Yes/No với "that".', rationale_vi: 'Cấu trúc câu hỏi: Is that + tính từ sở hữu + danh từ?', rationale_en: 'Question structure: Is that + possessive adjective + noun?' },
+            { type: 'multimedia', question: 'This is my _____.', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2013/11/21/635206366711453781_Audio.mp3', audioContent: 'house', correctAnswer: 'house', correctAnswer_vi: 'ngôi nhà', hint_vi: 'Nghe tên một nơi ở. (5 ký tự)', rationale_vi: 'Đoạn audio đọc từ "house".', rationale_en: 'The audio says the word "house".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Are there', 'any', 'books', 'in', 'your bedroom?'], correctAnswer: 'Are there any books in your bedroom?', correctAnswer_vi: 'Có quyển sách nào trong phòng ngủ của bạn không?', hint_vi: 'Câu hỏi Yes/No với "Are there".', rationale_vi: 'Cấu trúc câu hỏi: Are there + any + danh từ (số nhiều) + ...?', rationale_en: 'Question structure: Are there + any + plural noun + ...?' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Goodbye.', 'See', 'you', 'later.'], correctAnswer: 'Goodbye. See you later.', correctAnswer_vi: 'Tạm biệt. Hẹn gặp lại sau.', hint_vi: 'Đây là một câu chào tạm biệt.', rationale_vi: 'Đây là hai cụm từ chào tạm biệt thông dụng đi liền nhau.', rationale_en: 'These are two common farewell phrases used together.' },
+            { type: 'mc', question: '... is that? - It’s a chair.', options: [ { text: 'A. Who', isCorrect: false }, { text: 'B. Where', isCorrect: false }, { text: 'C. What', isCorrect: true }, { text: 'D. When', isCorrect: false } ], correctAnswer: 'C. What', correctAnswer_vi: 'Cái gì', hint_vi: 'Câu trả lời là một đồ vật.', rationale_vi: 'Để hỏi về đồ vật, ta dùng từ để hỏi "What".', rationale_en: 'To ask about an object, we use the question word "What".' },
+            { type: 'multimedia', question: 'Listen and tick:', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2013/11/21/635206373370949478_Audio.mp3', audioContent: 'This boy is Nam.', options: [ { text: 'A. This toy is Nam.', isCorrect: false }, { text: 'B. This friend is Nam.', isCorrect: false }, { text: 'C. This girl is Nam.', isCorrect: false }, { text: 'D. This boy is Nam.', isCorrect: true } ], correctAnswer: 'D. This boy is Nam.', correctAnswer_vi: 'Cậu bé này là Nam.', hint_vi: 'Lắng nghe kỹ danh từ (toy/friend/girl/boy).', rationale_vi: 'Đoạn audio đọc câu "This boy is Nam".', rationale_en: 'The audio says "This boy is Nam".' },
+            { type: 'mc', question: 'I ... Andy.', options: [ { text: 'A. are', isCorrect: false }, { text: 'B. am', isCorrect: true }, { text: 'C. is', isCorrect: false }, { text: 'D. you', isCorrect: false } ], correctAnswer: 'B. am', correctAnswer_vi: 'am', hint_vi: 'Động từ to be đi với "I".', rationale_vi: 'Chủ ngữ "I" đi với động từ to be "am".', rationale_en: 'The subject "I" takes the verb "am".' },
+            { type: 'fill-in-the-blank', question: 'Co_plete the sentences.', correctAnswer: 'm', correctAnswer_vi: 'm (để hoàn thành "Complete")', hint_vi: 'Động từ có nghĩa là "hoàn thành". (1 ký tự)', rationale_vi: 'Từ cần điền là "Complete" (Hoàn thành).', rationale_en: 'The word is "Complete".' },
+            { type: 'fill-in-the-blank', question: 'How are y__?', correctAnswer: 'ou', correctAnswer_vi: 'ou (để hoàn thành "you")', hint_vi: 'Câu hỏi thăm sức khỏe. (2 ký tự)', rationale_vi: 'Câu hỏi "How are you?".', rationale_en: 'The question is "How are you?".' },
+            { type: 'fill-in-the-blank', question: '__es she like table tennis?', correctAnswer: 'Do', correctAnswer_vi: 'Do (để hoàn thành "Does")', hint_vi: 'Trợ động từ cho ngôi thứ ba số ít trong câu hỏi Yes/No. (2 ký tự)', rationale_vi: 'Câu hỏi Yes/No ở thì hiện tại đơn với chủ ngữ "she" dùng trợ động từ "Does".', rationale_en: 'The auxiliary verb for a Yes/No question in the simple present with subject "she" is "Does".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Is', 'the', 'gym', 'large?'], correctAnswer: 'Is the gym large?', correctAnswer_vi: 'Phòng thể dục có rộng không?', hint_vi: 'Câu hỏi Yes/No bắt đầu bằng "Is".', rationale_vi: 'Cấu trúc câu hỏi Yes/No: Is + the + danh từ + tính từ?', rationale_en: 'Yes/No question structure: Is + the + noun + adjective?' },
+            { type: 'multimedia', question: 'There are many k____ in the sky.', mediaType: 'image', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2013/11/23/635208373249248407_566X320.jpg', imagePrompt: 'Kites in the sky.', correctAnswer: 'ites', correctAnswer_vi: 'ites (để hoàn thành "kites")', hint_vi: 'Đồ vật bay trên trời trong hình. (4 ký tự)', rationale_vi: 'Hình ảnh cho thấy có nhiều con diều (kites) trên bầu trời.', rationale_en: 'The image shows many kites in the sky.' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ["Don't", 'make', 'a', 'mess.'], correctAnswer: "Don't make a mess.", correctAnswer_vi: 'Đừng làm bừa bộn.', hint_vi: 'Câu mệnh lệnh phủ định.', rationale_vi: 'Cấu trúc mệnh lệnh phủ định: Don\'t + động từ + tân ngữ.', rationale_en: 'Negative imperative structure: Don\'t + verb + object.' },
+            { type: 'mc', question: '… is your name? – My name is Jenny.', options: [ { text: 'A. How', isCorrect: false }, { text: 'B. Where', isCorrect: false }, { text: 'C. Who', isCorrect: false }, { text: 'D. What', isCorrect: true } ], correctAnswer: 'D. What', correctAnswer_vi: 'Cái gì', hint_vi: 'Từ để hỏi về tên.', rationale_vi: 'Câu hỏi về tên bắt đầu bằng "What".', rationale_en: 'Questions about names start with "What".' },
+            { type: 'mc', question: 'This is ... cat.', options: [ { text: 'A. he', isCorrect: false }, { text: 'B. she', isCorrect: false }, { text: 'C. my', isCorrect: true }, { text: 'D. you', isCorrect: false } ], correctAnswer: 'C. my', correctAnswer_vi: 'của tôi', hint_vi: 'Cần một tính từ sở hữu.', rationale_vi: 'Tính từ sở hữu "my" đứng trước danh từ "cat".', rationale_en: 'The possessive adjective "my" goes before the noun "cat".' },
+            { type: 'mc', question: '_______ the tables old?', options: [ { text: 'A. Am', isCorrect: false }, { text: 'B. Is', isCorrect: false }, { text: 'C. Are', isCorrect: true }, { text: 'D. It', isCorrect: false } ], correctAnswer: 'C. Are', correctAnswer_vi: 'Are', hint_vi: 'Chủ ngữ "the tables" là số nhiều.', rationale_vi: 'Chủ ngữ số nhiều ("the tables") đi với động từ to be "Are" trong câu hỏi.', rationale_en: 'The plural subject ("the tables") takes the verb "Are" in a question.' },
+            { type: 'fill-in-the-blank', question: 'Good mo__ing, children!', correctAnswer: 'rn', correctAnswer_vi: 'rn (để hoàn thành "morning")', hint_vi: 'Lời chào buổi sáng. (2 ký tự)', rationale_vi: 'Lời chào buổi sáng là "Good morning".', rationale_en: 'The morning greeting is "Good morning".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['It', 'is', 'very', 'hot', 'today.'], correctAnswer: 'It is very hot today.', correctAnswer_vi: 'Hôm nay trời rất nóng.', hint_vi: 'Câu nói về thời tiết.', rationale_vi: 'Cấu trúc câu nói về thời tiết: It is + trạng từ + tính từ + trạng từ thời gian.', rationale_en: 'Weather sentence structure: It is + adverb + adjective + time adverb.' },
+            { type: 'multimedia', question: 'BACKP_CK', mediaType: 'image', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/Thi_cac_cap/2020-2021/Lop3/Captruong/Images/3-dt-9(1).jpg', imagePrompt: 'A backpack.', correctAnswer: 'A', correctAnswer_vi: 'A (để hoàn thành "BACKPACK")', hint_vi: 'Chữ cái còn thiếu để tạo thành từ có nghĩa là "ba lô". (1 ký tự)', rationale_vi: 'Hình ảnh cho thấy một cái ba lô (BACKPACK).', rationale_en: 'The image shows a backpack.' },
+            { type: 'fill-in-the-blank', question: 'Thank you very ____.', correctAnswer: 'much', correctAnswer_vi: 'much (nhiều)', hint_vi: 'Cụm từ cảm ơn. (4 ký tự)', rationale_vi: 'Cụm từ cảm ơn thông dụng là "Thank you very much".', rationale_en: 'The common phrase of gratitude is "Thank you very much".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Listen', 'to', 'the', 'teacher,', 'please.'], correctAnswer: 'Listen to the teacher, please.', correctAnswer_vi: 'Lắng nghe giáo viên, làm ơn.', hint_vi: 'Cụm động từ là "Listen to".', rationale_vi: 'Cấu trúc mệnh lệnh: Động từ + tân ngữ + please.', rationale_en: 'Imperative structure: Verb + object + please.' },
+            { type: 'mc', question: 'I\'m _____ so I don’t go to school today.', options: [ { text: 'A. fine', isCorrect: false }, { text: 'B. good', isCorrect: false }, { text: 'C. well', isCorrect: false }, { text: 'D. sick', isCorrect: true } ], correctAnswer: 'D. sick', correctAnswer_vi: 'ốm', hint_vi: 'Lý do để không đi học.', rationale_vi: 'Nếu bạn không đi học, lý do có thể là vì bạn bị ốm (sick).', rationale_en: 'If you don’t go to school, a likely reason is that you are sick.' },
+            { type: 'mc', question: 'What color is this? - It’s ... .', options: [ { text: 'A. book', isCorrect: false }, { text: 'B. pen', isCorrect: false }, { text: 'C. green', isCorrect: true }, { text: 'D. pencil', isCorrect: false } ], correctAnswer: 'C. green', correctAnswer_vi: 'màu xanh lá', hint_vi: 'Câu hỏi về màu sắc.', rationale_vi: 'Câu hỏi "What color is this?" cần câu trả lời là một màu sắc. "green" là một màu sắc.', rationale_en: 'The question "What color is this?" requires a color as an answer. "green" is a color.' },
+            { type: 'mc', question: 'Is this a book? - ... .', options: [ { text: 'A. Yes, it is', isCorrect: true }, { text: 'B. Yes, isn’t', isCorrect: false }, { text: 'C. No, It is', isCorrect: false }, { text: 'D. Nice to meet you.', isCorrect: false } ], correctAnswer: 'A. Yes, it is', correctAnswer_vi: 'Vâng, đúng vậy.', hint_vi: 'Câu trả lời khẳng định.', rationale_vi: 'Câu trả lời khẳng định cho "Is this...?" là "Yes, it is".', rationale_en: 'The affirmative answer to "Is this...?" is "Yes, it is".' },
+            { type: 'rearrange', question: 'Sắp xếp các từ sau thành câu đúng:', words: ['Goodbye,', 'Miss', 'Green.'], correctAnswer: 'Goodbye, Miss Green.', correctAnswer_vi: 'Tạm biệt cô Green.', hint_vi: 'Lời chào tạm biệt một người.', rationale_vi: 'Cấu trúc chào tạm biệt: Goodbye + chức danh + tên.', rationale_en: 'Farewell structure: Goodbye + title + name.' },
+            { type: 'mc', question: 'He is ... .', options: [ { text: 'A. Peter', isCorrect: true }, { text: 'B. It', isCorrect: false }, { text: 'C. Mai', isCorrect: false }, { text: 'D. She', isCorrect: false } ], correctAnswer: 'A. Peter', correctAnswer_vi: 'Peter', hint_vi: 'Chủ ngữ "He" là nam giới.', rationale_vi: 'Chủ ngữ "He" yêu cầu một tên nam giới. "Peter" là tên nam.', rationale_en: 'The subject "He" requires a male name. "Peter" is a male name.' },
+            { type: 'fill-in-the-blank', question: 'Nice to me_t you.', correctAnswer: 'e', correctAnswer_vi: 'e (để hoàn thành "meet")', hint_vi: 'Động từ trong câu chào hỏi. (1 ký tự)', rationale_vi: 'Cụm từ "Nice to meet you".', rationale_en: 'The phrase is "Nice to meet you".' },
+            { type: 'mc', question: 'What is this? – It is … ice cream.', options: [ { text: 'A. a', isCorrect: false }, { text: 'B. an', isCorrect: true }, { text: 'C. these', isCorrect: false }, { text: 'D. that', isCorrect: false } ], correctAnswer: 'B. an', correctAnswer_vi: 'an', hint_vi: '"ice cream" bắt đầu bằng một nguyên âm.', rationale_vi: 'Mạo từ "an" được dùng trước các danh từ bắt đầu bằng nguyên âm.', rationale_en: 'The article "an" is used before nouns that start with a vowel sound.' },
+            { type: 'mc', question: '_______. See you again.', options: [ { text: 'A. Good morning', isCorrect: false }, { text: 'B. Good afternoon', isCorrect: false }, { text: 'C. Good evening', isCorrect: false }, { text: 'D. Goodbye', isCorrect: true } ], correctAnswer: 'D. Goodbye', correctAnswer_vi: 'Tạm biệt', hint_vi: 'Câu đi kèm là "See you again".', rationale_vi: '"See you again" (Hẹn gặp lại) thường đi sau lời chào tạm biệt "Goodbye".', rationale_en: '"See you again" typically follows the farewell "Goodbye".' },
+            { type: 'multimedia', question: 'They are in the _______.', mediaType: 'audio', mediaSource: 'https://res.ioe.vn/edu/EOlympic/ExamData/ImageExam/2018/1/2/636505052862125598_Audio.mp3', audioContent: 'library', correctAnswer: 'library', correctAnswer_vi: 'thư viện', hint_vi: 'Nghe tên một địa điểm trong trường học. (7 ký tự)', rationale_vi: 'Đoạn audio nói "They are in the library".', rationale_en: 'The audio says "They are in the library".' },
+            { type: 'fill-in-the-blank', question: 'That’_ his brother.', correctAnswer: 's', correctAnswer_vi: 's (để hoàn thành "That\'s")', hint_vi: 'Dạng viết tắt của "That is". (1 ký tự)', rationale_vi: '"That\'s" là dạng viết tắt của "That is".', rationale_en: '"That\'s" is the contraction of "That is".' }
+        ];
+
+        // --- Component: ProgressBar.tsx ---
+        const ProgressBar = ({ percentage }) => (
+            <div className="w-full h-2 bg-blue-100 rounded-full mt-4 overflow-hidden">
+                <div
+                    className="h-full bg-blue-500 transition-all duration-500 ease-in-out"
+                    style={{ width: `${percentage}%` }}
+                ></div>
+            </div>
+        );
+
+        // --- Component: MessageBox.tsx ---
+        const MessageBox = ({ message, type }) => {
+            const [visible, setVisible] = React.useState(false);
+
+            React.useEffect(() => {
+                if (message) {
+                    setVisible(true);
+                    const timer = setTimeout(() => setVisible(false), 2700);
+                    return () => clearTimeout(timer);
+                } else {
+                    setVisible(false);
+                }
+            }, [message, type]);
+
+            const baseClasses = "fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-xl shadow-xl text-center font-bold text-lg z-50 transition-all duration-300 transform";
+            const typeClasses = {
+                success: 'bg-green-100 border border-green-500 text-green-800',
+                error: 'bg-red-100 border border-red-500 text-red-800',
+                info: 'bg-yellow-100 border border-yellow-500 text-yellow-800',
+            };
+            const visibilityClasses = visible ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none';
+
+            return <div className={`${baseClasses} ${typeClasses[type]} ${visibilityClasses}`}>{message}</div>;
+        };
+
+        // --- Component: RationaleBox.tsx ---
+        const RationaleBox = ({ question, isCorrect, submittedAnswer }) => {
+            const boxClasses = `mt-6 p-4 rounded-xl border transition duration-300 fade-in border-l-4 ${
+                isCorrect ? 'bg-green-100 border-green-600' : 'bg-red-100 border-red-600'
+            }`;
+            
+            const submittedAnswerDisplay = () => {
+                const isFillIn = question.type === 'fill-in-the-blank' || (question.type === 'multimedia' && !question.options);
+                if (isCorrect && !isFillIn) return null;
+                
+                return (
+                    <>
+                        <strong className="text-gray-700">
+                            {question.type === 'mc' || question.type === 'multimedia' ? 'Bạn đã chọn/Điền: ' : 'Câu trả lời của bạn: '}
+                        </strong>
+                        <span className="text-red-700 font-medium break-words">{submittedAnswer}</span>
+                        <br/>
+                    </>
+                );
+            }
+
+            return (
+                <div className={boxClasses}>
+                    <p className="font-bold text-lg mb-2 text-blue-700">Giải thích:</p>
+                    <div className="text-gray-700">
+                        {submittedAnswerDisplay()}
+                        <strong>Đáp án đúng:</strong> <span className="text-green-800 font-semibold">{question.correctAnswer}</span> <br />
+                        
+                        {question.correctAnswer_vi && (
+                            <>
+                                <strong>Nghĩa là:</strong> <span className="text-green-600 font-medium">{question.correctAnswer_vi}</span> <br/>
+                            </>
+                        )}
+                        <p className="mt-2">{question.rationale_vi || 'Không có giải thích chi tiết.'}</p>
+                    </div>
+                    <div className="text-gray-600 italic mt-2 text-sm border-t border-gray-300 pt-2">
+                        <strong>Rationale:</strong> {question.rationale_en || 'No detailed rationale.'}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Component: questions/MediaDisplay.tsx ---
+        const MediaDisplay = ({ question, showMessage }) => {
+            if (question.mediaType === 'image') {
+                return (
+                    <div className="w-full p-4 bg-gray-100 rounded-xl mb-4 text-center border-2 border-dashed border-gray-300">
+                        <p className="text-blue-600 font-bold mb-2">🖼️ Câu hỏi kèm Hình ảnh</p>
+                        <img 
+                            src={question.mediaSource}
+                            alt={question.imagePrompt || 'Media for question'} 
+                            className="w-full max-w-xs mx-auto rounded-lg shadow-md border-2 border-gray-300"
+                            crossOrigin="anonymous"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => { 
+                                const target = e.target;
+                                target.onerror = null; 
+                                target.src = `https://placehold.co/566x320/FF0000/FFFFFF?text=L%E1%BB%97I+T%E1%BA%A2I+%E1%BA%A2NH`; 
+                                showMessage('Lỗi tải ảnh: File media có thể bị chặn bởi trình duyệt.', 'error');
+                            }}
+                        />
+                        <p className="text-xs text-gray-500 mt-2 break-all">Link: {question.mediaSource}</p>
+                        {question.imagePrompt && <p className="text-sm text-blue-600 mt-2 font-medium">Gợi ý: {question.imagePrompt}</p>}
+                    </div>
+                );
+            }
+
+            if (question.mediaType === 'audio') {
+                return (
+                    <div className="w-full p-4 bg-gray-100 rounded-xl mb-4 text-center border-2 border-dashed border-gray-300">
+                        <p className="text-blue-600 font-bold mb-2">🔊 Câu hỏi Nghe (Bấm Play)</p>
+                        <audio 
+                            controls
+                            src={question.mediaSource}
+                            className="w-full max-w-sm mx-auto my-2"
+                            crossOrigin="anonymous"
+                            onError={() => {
+                                showMessage('Lỗi tải Audio: File media có thể bị chặn bởi trình duyệt.', 'error');
+                            }}
+                        >
+                            <source src={question.mediaSource} type="audio/mp3" />
+                            Trình duyệt của bạn không hỗ trợ phần tử audio.
+                        </audio>
+                        <p className="text-xs text-gray-500 mt-2 break-all">Link: {question.mediaSource}</p>
+                    </div>
+                );
+            }
+            return null;
+        }
+
+        // --- Component: questions/MultipleChoiceQuestion.tsx ---
+        const MultipleChoiceQuestion = ({ question, isAnswered, onSubmit, showMessage, questionIndex }) => {
+            const [selectedIndex, setSelectedIndex] = React.useState(null);
+
+            React.useEffect(() => setSelectedIndex(null), [question]);
+
+            const handleSubmitClick = () => {
+                if (selectedIndex === null) {
+                    showMessage('Vui lòng chọn một đáp án!', 'info');
+                    return;
+                }
+                const selectedOption = question.options[selectedIndex];
+                onSubmit(selectedOption.text, selectedOption.isCorrect);
+            };
+            
+            const cleanQuestionText = question.question.replace(/^\d+\.\s*/, '');
+
+            return (
+                <>
+                    {question.type === 'multimedia' && <MediaDisplay question={question} showMessage={showMessage} />}
+                    <h3
+                        className="text-xl sm:text-2xl font-semibold mb-6 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: `${questionIndex + 1}. ${cleanQuestionText}` }}
+                    />
+                    <div className="space-y-4">
+                        <div className="space-y-3">
+                            {question.options.map((option, index) => {
+                                const isSelected = selectedIndex === index;
+                                let labelClasses = "block p-4 border-2 rounded-xl shadow-md text-lg transition duration-200";
+
+                                if (isAnswered) {
+                                    labelClasses += " cursor-default";
+                                    if (option.isCorrect) labelClasses += " bg-green-100 border-green-500 font-bold";
+                                    else if (isSelected) labelClasses += " bg-red-100 border-red-500 font-bold";
+                                    else labelClasses += " border-gray-200 opacity-60";
+                                } else {
+                                    labelClasses += " cursor-pointer hover:bg-blue-50 hover:border-blue-300";
+                                    if(isSelected) labelClasses += " bg-blue-100 border-blue-500";
+                                    else labelClasses += " border-gray-200";
+                                }
+
+                                return (
+                                    <div key={index} className="relative">
+                                        <input
+                                            type="radio" id={`option-${questionIndex}-${index}`} name={`mc-option-${questionIndex}`}
+                                            value={index} className="hidden" checked={isSelected}
+                                            onChange={() => setSelectedIndex(index)} disabled={isAnswered}
+                                        />
+                                        <label htmlFor={`option-${questionIndex}-${index}`} className={labelClasses}>
+                                            {option.text}
+                                        </label>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <button
+                            onClick={handleSubmitClick}
+                            disabled={isAnswered}
+                            className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md transition duration-300 hover:bg-green-700 mt-4 disabled:bg-gray-400 disabled:cursor-not-allowed active:scale-98"
+                        >Kiểm Tra</button>
+                    </div>
+                </>
+            );
+        };
+
+        // --- Component: questions/FillInTheBlankQuestion.tsx ---
+        const FillInTheBlankQuestion = ({ question, isAnswered, onSubmit, showMessage, questionIndex }) => {
+            const [inputValue, setInputValue] = React.useState('');
+
+            React.useEffect(() => setInputValue(''), [question]);
+
+            const handleSubmitClick = () => {
+                const trimmedInput = inputValue.trim();
+                if (trimmedInput === '') {
+                    showMessage('Vui lòng điền câu trả lời của bạn!', 'info');
+                    return;
+                }
+                const isCorrect = trimmedInput.toLowerCase() === question.correctAnswer.toLowerCase();
+                onSubmit(trimmedInput, isCorrect);
+            };
+            
+            const questionTextParts = React.useMemo(() => {
+                const text = question.question.replace(/^\d+\.\s*/, '');
+                const blankMarker = '____';
+                const parts = text.includes(blankMarker) ? text.split(blankMarker) : [text, ''];
+                return [parts[0], parts.slice(1).join(blankMarker)];
+            }, [question.question]);
+
+            const isSubmissionCorrect = isAnswered && inputValue.trim().toLowerCase() === question.correctAnswer.toLowerCase();
+
+            let inputClasses = `inline-block mx-2 p-2 border-2 rounded-lg text-lg text-center shadow-sm transition duration-200 align-baseline w-48 font-mono ${
+                isAnswered 
+                ? (isSubmissionCorrect ? 'border-green-500 bg-green-50 font-bold' : 'border-red-500 bg-red-50 font-bold')
+                : 'border-gray-300 focus:border-blue-500'
+            }`;
+
+            const placeholderLength = question.correctAnswer.length > 0 ? question.correctAnswer.length : 4;
+            const inputWidthStyle = { width: `${Math.max(8, placeholderLength * 1.5)}rem`, maxWidth: '100%' };
+
+            return (
+                <div className="space-y-4">
+                    {question.type === 'multimedia' && <MediaDisplay question={question} showMessage={showMessage} />}
+                    <div className="text-xl sm:text-2xl font-semibold mb-6 leading-relaxed text-center flex justify-center items-center flex-wrap">
+                        <span>{questionIndex + 1}. </span>
+                        {questionTextParts[0] && <span className="ml-1">{questionTextParts[0]}</span>}
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            disabled={isAnswered}
+                            placeholder={isAnswered ? question.correctAnswer : "Điền từ/chữ"}
+                            className={inputClasses}
+                            style={inputWidthStyle}
+                            onKeyPress={(e) => e.key === 'Enter' && !isAnswered && handleSubmitClick()}
+                            aria-label="Fill in the blank"
+                        />
+                        {questionTextParts[1] && <span>{questionTextParts[1]}</span>}
+                    </div>
+                    <button
+                        onClick={handleSubmitClick}
+                        disabled={isAnswered}
+                        className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md transition duration-300 hover:bg-green-700 mt-4 disabled:bg-gray-400 disabled:cursor-not-allowed active:scale-98"
+                    >Kiểm Tra</button>
+                </div>
+            );
+        };
+        
+        // --- Component: questions/RearrangeQuestion.tsx ---
+        const WordBlock = ({ word, onClick, isSource, isAnswered }) => {
+            const baseClasses = 'word-block px-3 py-2 text-base sm:text-lg font-semibold rounded-lg shadow-sm transition-all duration-150 break-words transform active:scale-95';
+            const sourceClasses = isSource ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 'bg-gray-100 text-gray-800 border-b-2 border-gray-300';
+            const disabledClasses = 'opacity-60 cursor-default shadow-inner';
+            const interactiveClasses = 'cursor-pointer';
+
+            return <span onClick={!isAnswered ? onClick : undefined} className={`${baseClasses} ${sourceClasses} ${isAnswered ? disabledClasses : interactiveClasses}`}>{word.text}</span>;
+        };
+
+        const RearrangeQuestion = ({ question, isAnswered, onSubmit, showMessage, questionIndex, isCorrect }) => {
+            const [sentenceWords, setSentenceWords] = React.useState([]);
+            const initialSourceWords = React.useMemo(() => [...question.words].map((text) => ({ id: crypto.randomUUID(), text })).sort(() => Math.random() - 0.5), [question]);
+            const [sourceWords, setSourceWords] = React.useState(initialSourceWords);
+
+            React.useEffect(() => {
+                setSourceWords(initialSourceWords);
+                setSentenceWords([]);
+            }, [initialSourceWords]);
+
+            const handleSelectWord = (word) => {
+                setSourceWords(prev => prev.filter(w => w.id !== word.id));
+                setSentenceWords(prev => [...prev, word]);
+            };
+
+            const handleReturnWord = (word) => {
+                setSentenceWords(prev => prev.filter(w => w.id !== word.id));
+                setSourceWords(prev => [...prev, word].sort((a, b) => initialSourceWords.findIndex(sw => sw.id === a.id) - initialSourceWords.findIndex(sw => sw.id === b.id)));
+            };
+
+            const handleSubmitClick = () => {
+                if (sentenceWords.length === 0) {
+                    showMessage('Vui lòng sắp xếp các từ!', 'info');
+                    return;
+                }
+                const submitted = sentenceWords.map(w => w.text).join(' ').replace(/\s+([.,?!])/g, '$1').trim();
+                const normalize = (str) => str.replace(/[.,?!’']/g, '').replace(/\s+/g, ' ').toLowerCase().trim();
+                const isCorrectResult = normalize(submitted) === normalize(question.correctAnswer);
+                onSubmit(submitted, isCorrectResult);
+            };
+            
+            const cleanQuestionText = question.question.replace(/^\d+\.\s*/, '');
+
+            return (
+                <>
+                    <h3 className="text-xl sm:text-2xl font-semibold mb-6 leading-relaxed" dangerouslySetInnerHTML={{ __html: `${questionIndex + 1}. ${cleanQuestionText}` }} />
+                    <div className="space-y-4">
+                        <div className={`min-h-[60px] p-3 border-2 rounded-xl shadow-inner flex flex-wrap gap-2 items-center transition duration-300 ${isAnswered ? (isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50') : 'border-blue-300 bg-blue-50 border-dashed'}`}>
+                            {sentenceWords.length === 0 && !isAnswered ? (
+                                <span className="text-gray-500 italic text-sm">Chạm vào các từ bên dưới để xây dựng câu...</span>
+                            ) : (
+                                sentenceWords.map(word => <WordBlock key={word.id} word={word} onClick={() => handleReturnWord(word)} isSource={false} isAnswered={isAnswered} />)
+                            )}
+                        </div>
+                        <div className="min-h-[100px] p-4 bg-gray-100 rounded-xl shadow-md flex flex-wrap gap-2 items-center border border-gray-200">
+                            {sourceWords.map(word => <WordBlock key={word.id} word={word} onClick={() => handleSelectWord(word)} isSource={true} isAnswered={isAnswered} />)}
+                        </div>
+                        <button onClick={handleSubmitClick} disabled={isAnswered} className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md transition duration-300 hover:bg-green-700 mt-4 disabled:bg-gray-400 disabled:cursor-not-allowed active:scale-98">Kiểm Tra</button>
+                    </div>
+                </>
+            );
+        };
+        
+        // --- Component: StartScreen.tsx ---
+        const StartScreen = ({ onStart }) => {
+            const [name, setName] = React.useState('');
+            const handleStart = () => name.trim() && onStart(name.trim());
+            const isButtonDisabled = name.trim() === '';
+
+            return (
+                <div className="fade-in text-center p-4">
+                    <header className="mb-8">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-600 mb-2">Bài Thi Thử IOE Lớp 3</h1>
+                        <p className="text-lg text-gray-500">Đề số 01: Kiến thức cơ bản ({QUESTIONS.length} câu)</p>
+                    </header>
+                    <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 className="text-2xl font-semibold mb-4 text-gray-700">Chào mừng bạn!</h2>
+                        <p className="text-gray-600 mb-6">Mỗi câu trả lời đúng được cộng 10 điểm. Cố gắng hết mình nhé!</p>
+                        <div className="space-y-4">
+                            <label htmlFor="player-name" className="block text-sm font-medium text-gray-700 text-left">Nhập tên của bạn để bắt đầu:</label>
+                            <input
+                                type="text" id="player-name" placeholder="Tên người chơi"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-lg shadow-sm transition duration-150"
+                                maxLength={50} value={name} onChange={(e) => setName(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && !isButtonDisabled && handleStart()}
+                            />
+                            <button
+                                onClick={handleStart} disabled={isButtonDisabled}
+                                className="w-full py-3 px-4 bg-blue-500 text-white font-bold rounded-xl shadow-lg transition duration-300 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-xl active:scale-98"
+                            >Bắt Đầu</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // --- Component: EndScreen.tsx ---
+        const EndScreen = ({ playerName, score, onRestart, mistakes }) => {
+            const [showReview, setShowReview] = React.useState(false);
+            const maxScore = QUESTIONS.length * 10;
+            const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0;
+            const message = percentage >= 80 ? "Xuất sắc! Bạn làm rất tốt!" : percentage >= 50 ? "Khá tốt! Cố gắng hơn nữa nhé." : "Cần cố gắng thêm. Đừng nản lòng!";
+
+            return (
+                <div className="text-center fade-in p-4">
+                    <h2 className="text-3xl font-bold mb-4 text-green-600">🎉 Hoàn Thành Bài Thi! 🎉</h2>
+                    <p className="text-xl text-gray-700 mb-2">Chúc mừng, <span className="font-extrabold text-blue-600">{playerName}</span>!</p>
+                    <p className="text-lg text-gray-600 mb-6">{message}</p>
+                    <div className="bg-white p-8 rounded-xl shadow-lg inline-block border border-gray-100">
+                        <p className="text-2xl font-semibold mb-8 text-gray-700">Điểm số cuối cùng của bạn:</p>
+                        <p className={`text-6xl font-black mb-10 text-blue-600`}>{score} / {maxScore}</p>
+                    </div>
+                    <div className="mt-8 space-x-4">
+                        <button
+                            onClick={onRestart}
+                            className="py-3 px-6 bg-blue-500 text-white font-bold rounded-xl shadow-lg transition duration-300 hover:bg-blue-600 text-lg active:scale-98"
+                        >Làm lại</button>
+                        {mistakes.length > 0 && (
+                            <button
+                                onClick={() => setShowReview(!showReview)}
+                                className="py-3 px-6 bg-red-500 text-white font-bold rounded-xl shadow-lg transition duration-300 hover:bg-red-600 text-lg active:scale-98"
+                            >{showReview ? 'Ẩn câu sai' : `Xem lại ${mistakes.length} câu sai`}</button>
+                        )}
+                    </div>
+
+                    {showReview && (
+                        <div className="mt-8 text-left border-t pt-6">
+                            <h3 className="text-2xl font-bold text-red-600 mb-4 text-center">Xem lại các câu sai</h3>
+                            <div className="space-y-6">
+                                {mistakes.map((mistake, index) => (
+                                    <div key={index} className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                                        <p className="font-semibold text-gray-800 mb-2" dangerouslySetInnerHTML={{ __html: `${index + 1}. ${mistake.question.question}`}} />
+                                        <p><strong>Câu trả lời của bạn:</strong> <span className="text-red-700 font-medium">{mistake.submittedAnswer}</span></p>
+                                        <p><strong>Đáp án đúng:</strong> <span className="text-green-700 font-medium">{mistake.question.correctAnswer}</span></p>
+                                        <p className="mt-2 text-sm text-gray-600"><em>{mistake.question.rationale_vi}</em></p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        // --- Component: QuizScreen.tsx ---
+        const QuizScreen = ({ playerName, onEnd }) => {
+            const [shuffledQuestions, setShuffledQuestions] = React.useState([]);
+            const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
+            const [score, setScore] = React.useState(0);
+            const [isAnswered, setIsAnswered] = React.useState(false);
+            const [isCorrect, setIsCorrect] = React.useState(false);
+            const [submittedAnswer, setSubmittedAnswer] = React.useState('');
+            const [isHintVisible, setIsHintVisible] = React.useState(false);
+            const [message, setMessage] = React.useState(null);
+            const [mistakes, setMistakes] = React.useState([]);
+
+            React.useEffect(() => {
+                const array = [...QUESTIONS];
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                setShuffledQuestions(array);
+            }, []);
+
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+
+            React.useEffect(() => {
+                setIsAnswered(false);
+                setIsCorrect(false);
+                setSubmittedAnswer('');
+                setIsHintVisible(false);
+                setMessage(null);
+            }, [currentQuestionIndex]);
+            
+            const showMessage = (text, type) => setMessage({ text, type });
+
+            const handleSubmit = React.useCallback((answer, isAnswerCorrect) => {
+                if (isAnswered) return;
+                
+                setIsAnswered(true);
+                setSubmittedAnswer(answer);
+                setIsCorrect(isAnswerCorrect);
+
+                if (isAnswerCorrect) {
+                    setScore(prev => prev + 10);
+                    showMessage('CHÍNH XÁC! +10 điểm', 'success');
+                } else {
+                    showMessage('SAI RỒI! Cùng xem lại nhé.', 'error');
+                    setMistakes(prev => [...prev, { question: currentQuestion, submittedAnswer: answer }]);
+                }
+            }, [isAnswered, currentQuestion]);
+
+            const handleNext = () => {
+                if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                    setCurrentQuestionIndex(prev => prev + 1);
+                } else {
+                    onEnd(score, mistakes);
+                }
+            };
+
+            if (!currentQuestion) {
+                return <div className="text-center p-8">Đang tải câu hỏi...</div>;
+            }
+
+            const progressPercentage = ((currentQuestionIndex + 1) / QUESTIONS.length) * 100;
+            
+            const renderQuestionComponent = () => {
+                const commonProps = { isAnswered, onSubmit: handleSubmit, showMessage, questionIndex: currentQuestionIndex, isCorrect };
+                
+                switch(currentQuestion.type) {
+                    case 'rearrange':
+                        return <RearrangeQuestion {...commonProps} question={currentQuestion} />;
+                    case 'mc':
+                        return <MultipleChoiceQuestion {...commonProps} question={currentQuestion} />;
+                    case 'fill-in-the-blank':
+                        return <FillInTheBlankQuestion {...commonProps} question={currentQuestion} />;
+                    case 'multimedia': {
+                        const q = currentQuestion;
+                        if (q.options) {
+                            return <MultipleChoiceQuestion {...commonProps} question={q} />;
+                        }
+                        return <FillInTheBlankQuestion {...commonProps} question={q} />;
+                    }
+                    default:
+                        return <div className="text-red-500">Lỗi: Loại câu hỏi không xác định.</div>;
+                }
+            };
+
+            return (
+                <div className="fade-in">
+                    {message && <MessageBox message={message.text} type={message.type} />}
+                    <header className="text-center mb-8">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-600 mb-2">Bài Thi Thử IOE Lớp 3</h1>
+                        <ProgressBar percentage={progressPercentage} />
+                    </header>
+
+                    <div className="flex justify-between items-center mb-6 py-2 px-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                        <p className="text-sm sm:text-base font-medium text-blue-800">Người chơi: <span className="font-bold">{playerName}</span></p>
+                        <p className="text-sm sm:text-base font-medium text-blue-800">Điểm: <span className="text-xl font-extrabold text-red-600">{score}</span></p>
+                        <p className="text-sm sm:text-base font-medium text-blue-800">Câu: <span className="font-bold">{currentQuestionIndex + 1}/{QUESTIONS.length}</span></p>
+                    </div>
+
+                    <div className="mb-8">{renderQuestionComponent()}</div>
+
+                    <div className="mt-8 border-t pt-6 flex justify-between items-center flex-wrap gap-4">
+                        <div className="relative">
+                            <button
+                                className="bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 hover:bg-yellow-600 active:scale-95"
+                                onMouseEnter={() => setIsHintVisible(true)} onMouseLeave={() => setIsHintVisible(false)}
+                            >Gợi ý</button>
+                            <div className={`absolute bottom-full mb-2 w-max max-w-[90vw] sm:max-w-sm p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-xl shadow-lg transition-all duration-300 transform origin-bottom-left ${isHintVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}`}>
+                                <p className="font-semibold text-yellow-800">Gợi ý:</p>
+                                <p className="text-yellow-700">{currentQuestion.hint_vi || 'Không có gợi ý.'}</p>
+                            </div>
+                        </div>
+                        <button onClick={handleNext} disabled={!isAnswered} className="flex-grow py-3 px-4 bg-blue-500 text-white font-bold rounded-xl shadow-xl transition duration-300 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed active:scale-98">
+                            {currentQuestionIndex === shuffledQuestions.length - 1 ? 'Hoàn Thành' : 'Câu Tiếp Theo »'}
+                        </button>
+                    </div>
+
+                    {isAnswered && <RationaleBox question={currentQuestion} isCorrect={isCorrect} submittedAnswer={submittedAnswer} />}
+                </div>
+            );
+        };
+        
+        // --- Component: App.tsx ---
+        const App = () => {
+            const [gameState, setGameState] = React.useState('start');
+            const [playerName, setPlayerName] = React.useState('');
+            const [score, setScore] = React.useState(0);
+            const [mistakes, setMistakes] = React.useState([]);
+
+            const handleStartQuiz = React.useCallback((name) => {
+                setPlayerName(name);
+                setScore(0);
+                setMistakes([]);
+                setGameState('quiz');
+            }, []);
+
+            const handleEndQuiz = React.useCallback((finalScore, finalMistakes) => {
+                setScore(finalScore);
+                setMistakes(finalMistakes);
+                setGameState('end');
+            }, []);
+            
+            const handleRestartQuiz = React.useCallback(() => {
+                setGameState('start');
+            }, []);
+
+            const renderContent = () => {
+                switch (gameState) {
+                    case 'quiz': 
+                        return <QuizScreen playerName={playerName} onEnd={handleEndQuiz} />;
+                    case 'end': 
+                        return <EndScreen playerName={playerName} score={score} onRestart={handleRestartQuiz} mistakes={mistakes} />;
+                    default: 
+                        return <StartScreen onStart={handleStartQuiz} />;
+                }
+            };
+
+            return (
+                <div className="p-4 sm:p-8 flex justify-center items-start min-h-screen">
+                    <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-10 border border-gray-100 min-h-[80vh]">
+                        {renderContent()}
+                    </div>
+                </div>
+            );
+        };
+        
+        // --- Entry point (index.tsx) ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<React.StrictMode><App /></React.StrictMode>);
+
+    </script>
 </body>
 </html>
